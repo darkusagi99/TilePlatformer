@@ -11,6 +11,10 @@ int main(int argc, char* args[])
 	//The window we'll be rendering to
 	SDL_Window* window = NULL;
 
+	// Event and Exit management
+	int quit = 0;
+	SDL_Event event;
+
 	//The surface contained by the window
 	SDL_Surface* screenSurface = NULL;
 
@@ -41,6 +45,33 @@ int main(int argc, char* args[])
 			//Wait two seconds
 			SDL_Delay(2000);
 		}
+	}
+
+	/* Loop until an SDL_QUIT event is found */
+	while (!quit) {
+
+		/* Poll for events */
+		while (SDL_PollEvent(&event)) {
+
+			switch (event.type) {
+				/* Keyboard event */
+				/* Pass the event data onto PrintKeyInfo() */
+			case SDL_KEYDOWN:
+			case SDL_KEYUP:
+				//PrintKeyInfo(&event.key);
+				break;
+
+				/* SDL_QUIT event (window close) */
+			case SDL_QUIT:
+				quit = 1;
+				break;
+
+			default:
+				break;
+			}
+
+		}
+
 	}
 
 	//Destroy window
