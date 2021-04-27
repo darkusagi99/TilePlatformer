@@ -33,45 +33,100 @@ int main(int argc, char* args[])
 		}
 		else
 		{
-			//Get window surface
-			screenSurface = SDL_GetWindowSurface(window);
 
-			//Fill the surface white
-			SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+			/* Loop until an SDL_QUIT event is found */
+			while (!quit) {
 
-			//Update the surface
-			SDL_UpdateWindowSurface(window);
+				/* Poll for events */
+				while (SDL_PollEvent(&event)) {
 
-			//Wait two seconds
-			SDL_Delay(2000);
-		}
-	}
+					switch (event.type) {
+						/* Keyboard event */
+						case SDL_KEYDOWN:
+							/* Touche appuyée, changement de statut */
+							switch (event.key.keysym.sym) {
+							case SDLK_LEFT:
+								//alien_xvel = -1;
+								break;
+							case SDLK_RIGHT:
+								//alien_xvel = 1;
+								break;
+							case SDLK_UP:
+								//alien_yvel = -1;
+								break;
+							case SDLK_DOWN:
+								//alien_yvel = 1;
+								break;
+							case SDLK_x:
+								//alien_yvel = 1;
+								break;
+							case SDLK_c:
+								//alien_yvel = 1;
+								break;
+							case SDLK_ESCAPE:
+								quit = 1;
+								break;
+							default:
+								break;
+							}
 
-	/* Loop until an SDL_QUIT event is found */
-	while (!quit) {
 
-		/* Poll for events */
-		while (SDL_PollEvent(&event)) {
+							break;
+						/* Lorsque la touche est relachée, on annule le mouvement */
+						case SDL_KEYUP:
 
-			switch (event.type) {
-				/* Keyboard event */
-				/* Pass the event data onto PrintKeyInfo() */
-			case SDL_KEYDOWN:
-			case SDL_KEYUP:
-				//PrintKeyInfo(&event.key);
-				break;
+							/* Touche appuyée, changement de statut */
+							switch (event.key.keysym.sym) {
+							case SDLK_LEFT:
+								//alien_xvel = -1;
+								break;
+							case SDLK_RIGHT:
+								//alien_xvel = 1;
+								break;
+							case SDLK_UP:
+								//alien_yvel = -1;
+								break;
+							case SDLK_DOWN:
+								//alien_yvel = 1;
+								break;
+							case SDLK_x:
+								//alien_yvel = 1;
+								break;
+							case SDLK_c:
+								//alien_yvel = 1;
+								break;
+							case SDLK_ESCAPE:
+								quit = 1;
+								break;
+							default:
+								break;
+							}
 
-				/* SDL_QUIT event (window close) */
-			case SDL_QUIT:
-				quit = 1;
-				break;
+							break;
 
-			default:
-				break;
+						/* SDL_QUIT event (window close) */
+						case SDL_QUIT:
+							quit = 1;
+							break;
+
+						default:
+							break;
+					}
+
+				}
+
+				//Get window surface
+				screenSurface = SDL_GetWindowSurface(window);
+
+				//Fill the surface white
+				SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x11, 0x11, 0xDD));
+
+				//Update the surface
+				SDL_UpdateWindowSurface(window);
+
 			}
 
 		}
-
 	}
 
 	//Destroy window
