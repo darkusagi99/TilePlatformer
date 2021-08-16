@@ -20,8 +20,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TMap.h">
-      <Filter>Fichiers sources</Filter>
-    </ClInclude>
+    <Image Include="..\..\..\Downloads\testGrid.bmp">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+    <Image Include="resources\SMeowLevel.png">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+    <Image Include="resources\SMeowChar.png">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

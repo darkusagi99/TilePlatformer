@@ -5,6 +5,27 @@
 //Screen dimension constants
 const int SCREEN_WIDTH = 256;
 const int SCREEN_HEIGHT = 240;
+const int TILE_SIZE = 16;
+
+
+// Number of level elements
+const int LEVEL_WIDTH = 208;
+const int LEVEL_HEIGHT = 15;
+
+// Character vars
+int catX = 80;
+int catY = 192;
+
+
+// Définition du niveau
+struct gameLevel {
+	int levelTiles[LEVEL_HEIGHT][LEVEL_WIDTH] = {0 };
+
+	// Constructor
+	gameLevel() {
+	}
+
+};
 
 int main(int argc, char* args[])
 {
@@ -18,6 +39,10 @@ int main(int argc, char* args[])
 	//The surface contained by the window
 	SDL_Surface* screenSurface = NULL;
 
+	// Surfaces for tiles
+	SDL_Surface* sLevel = SDL_LoadBMP("./resources/SMeowLevel.bmp");
+	SDL_Surface* sChar = SDL_LoadBMP("./resources/SMeowChar.bmp");
+
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -28,12 +53,25 @@ int main(int argc, char* args[])
 		//Create window
 		window = SDL_CreateWindow("Tile Platformer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+
+		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+		SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
 		if (window == NULL)
 		{
 			printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
 		}
 		else
 		{
+			// Textures loading
+			SDL_Texture* tLevel = SDL_CreateTextureFromSurface(renderer, sLevel);
+			SDL_Texture* tChar = SDL_CreateTextureFromSurface(renderer, sChar);
+
+			// Room loading
+			gameLevel* currentLevel = new gameLevel();
 
 			/* Loop until an SDL_QUIT event is found */
 			while (!quit) {
@@ -116,19 +154,43 @@ int main(int argc, char* args[])
 
 				}
 
-				//Get window surface
-				screenSurface = SDL_GetWindowSurface(window);
+				SDL_RenderClear(renderer);
 
-				//Fill the surface white
-				SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x11, 0x11, 0xDD));
+				// Dessiner le niveau - Zone courante
+				for (int xr = 0; xr < LEVEL_WIDTH; xr++) {
+					for (int yr = 0; yr < LEVEL_HEIGHT; yr++) {
 
-				//Update the surface
-				SDL_UpdateWindowSurface(window);
+						SDL_Rect tilePosition = { xr * TILE_SIZE, yr * TILE_SIZE, 16, 16 };
+						int currentFloorTile = currentLevel->levelTiles[yr][xr];
+
+						SDL_Rect levelTile = { currentFloorTile * TILE_SIZE, 0, 16, 16 };
+						SDL_RenderCopy(renderer, tLevel, &levelTile, &tilePosition);  // Dessin d'un sprite
+
+					}
+				}
+
+				// Dessiner le Chat
+				SDL_Rect catPosition = { catX, catY, 16, 16 };
+				int currentCatTile = 0;
+
+				SDL_Rect catTile = { currentCatTile * TILE_SIZE, 0, 16, 16 };
+				SDL_RenderCopy(renderer, tChar, &catTile, &catPosition);  // Dessin d'un sprite
+
+				SDL_RenderPresent(renderer); // Affichage
+
+
 
 			}
 
 		}
+		// Destroy renderer
+		SDL_DestroyRenderer(renderer);
+
 	}
+
+;
+	// Libération de la mémoire pour les Sprites
+	SDL_FreeSurface(sLevel);
 
 	//Destroy window
 	SDL_DestroyWindow(window);
