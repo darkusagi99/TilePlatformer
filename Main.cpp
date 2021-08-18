@@ -66,6 +66,10 @@ int main(int argc, char* args[])
 	SDL_Surface* sLevel = SDL_LoadBMP("./resources/SMeowLevel.bmp");
 	SDL_Surface* sChar = SDL_LoadBMP("./resources/SMeowChar.bmp");
 
+	// Gestion de la transparence pour la surface
+	Uint32 transparentColor = SDL_MapRGB(sChar->format, 255, 255, 255);
+	int transCol = SDL_SetColorKey(sChar, SDL_TRUE, transparentColor);
+
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -79,6 +83,7 @@ int main(int argc, char* args[])
 
 
 		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
 		SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -92,6 +97,7 @@ int main(int argc, char* args[])
 			// Textures loading
 			SDL_Texture* tLevel = SDL_CreateTextureFromSurface(renderer, sLevel);
 			SDL_Texture* tChar = SDL_CreateTextureFromSurface(renderer, sChar);
+			SDL_SetTextureBlendMode(tChar, SDL_BLENDMODE_BLEND);
 
 			// Room loading
 			gameLevel* currentLevel = new gameLevel();
