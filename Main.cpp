@@ -208,8 +208,8 @@ int main(int argc, char* args[])
 				}
 
 				// Contrôle collision Chat / Décors
-				int currentTileXCheckMin = (catX + levelOffset) / TILE_SIZE;
-				int hasCurrentTileCheckXMax = ((catX + levelOffset) % TILE_SIZE) > 0;
+				int currentTileXCheckMin = (catXOld + levelOffsetOld) / TILE_SIZE;
+				int hasCurrentTileCheckXMax = ((catXOld + levelOffsetOld) % TILE_SIZE) > 0;
 				if (currentTileXCheckMin > LEVEL_WIDTH) {
 					currentTileXCheckMin = LEVEL_WIDTH;
 				}
@@ -217,7 +217,7 @@ int main(int argc, char* args[])
 				int currentTileYCheckMin = catY / TILE_SIZE;
 				int hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
 
-				// Collision Vertivale
+				// Collision Verticale
 				for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
 					for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
 
@@ -232,8 +232,14 @@ int main(int argc, char* args[])
 				// Collision Vertivale - catMoveX <> 0
 				if (catMoveX) {
 
-					int currentTileYCheckMin = catY / TILE_SIZE;
-					int hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
+					currentTileXCheckMin = (catX + levelOffset) / TILE_SIZE;
+					hasCurrentTileCheckXMax = ((catX + levelOffset) % TILE_SIZE) > 0;
+					if (currentTileXCheckMin > LEVEL_WIDTH) {
+						currentTileXCheckMin = LEVEL_WIDTH;
+					}
+
+					currentTileYCheckMin = catY / TILE_SIZE;
+					hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
 
 					for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
 						for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
