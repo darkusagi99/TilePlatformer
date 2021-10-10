@@ -26,6 +26,9 @@ int levelOffset = 0;
 int levelOffsetOld = 0;
 int levelTileOffset = 0;
 
+// FPS capping
+int a, b, delta;
+
 // Définition du niveau
 struct gameLevel {
 	int levelTiles[LEVEL_HEIGHT][LEVEL_WIDTH] = {
@@ -82,7 +85,7 @@ int main(int argc, char* args[])
 	{
 		//Create window
 		window = SDL_CreateWindow("Tile Platformer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		//SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 
 		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
@@ -168,124 +171,137 @@ int main(int argc, char* args[])
 
 				}
 
-				// Mise à jour de la position du chat (et animation)
-				// Sauvegarde de la position actuelle
-				catXOld = catX;
-				levelOffsetOld = levelOffset;
 
-				// Déplacement (horizontal)
-				if (catMoveX == 1) {
-					//catMove = 0;
-					if (catX < SCREEN_BASE_OFFSET) {
-						catX++;
-					}
-					else {
-						if (levelOffset < LEVEL_MAX_OFFSET) {
-							levelOffset++;
-							levelTileOffset = levelOffset / TILE_SIZE;
+				// Capping to 60 FPS
+				a = SDL_GetTicks();
+				delta = a - b;
+
+				// Mesure si on peut passer à la frame suivante
+				if (delta > 1000 / 120.0) {
+
+					// FPS Management
+					b = a;
+
+					// Mise à jour de la position du chat (et animation)
+					// Sauvegarde de la position actuelle
+					catXOld = catX;
+					levelOffsetOld = levelOffset;
+
+					// Déplacement (horizontal)
+					if (catMoveX == 1) {
+						//catMove = 0;
+						if (catX < SCREEN_BASE_OFFSET) {
+							catX++;
 						}
 						else {
-							if (catX < SCREEN_WIDTH - TILE_SIZE) {
-								catX++;
+							if (levelOffset < LEVEL_MAX_OFFSET) {
+								levelOffset++;
+								levelTileOffset = levelOffset / TILE_SIZE;
+							}
+							else {
+								if (catX < SCREEN_WIDTH - TILE_SIZE) {
+									catX++;
+								}
 							}
 						}
 					}
-				}
-				else {
-					if (catMoveX == -1) {
-						if (catX > 1) {
-							catX--;
+					else {
+						if (catMoveX == -1) {
+							if (catX > 1) {
+								catX--;
+							}
 						}
 					}
-				}
 
-				// Gestion de la gravité
-				catYOld = catY;
-				if (catMoveY) {
-					catY--;
-				} else {
-					catY++;
-				}
-
-				// Contrôle collision Chat / Décors
-				int currentTileXCheckMin = (catXOld + levelOffsetOld) / TILE_SIZE;
-				int hasCurrentTileCheckXMax = ((catXOld + levelOffsetOld) % TILE_SIZE) > 0;
-				if (currentTileXCheckMin > LEVEL_WIDTH) {
-					currentTileXCheckMin = LEVEL_WIDTH;
-				}
-
-				int currentTileYCheckMin = catY / TILE_SIZE;
-				int hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
-
-				// Collision Verticale
-				for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
-					for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
-
-						int currentFloorTile = currentLevel->levelTiles[currentTileYCheckMin + my][currentTileXCheckMin + mx];
-						if (currentFloorTile > 6) {
-							catY = catYOld;
-						}
+					// Gestion de la gravité
+					catYOld = catY;
+					if (catMoveY) {
+						catY--;
+						if (catY < 0) { catY = 0; }
 					}
-				}
+					else {
+						catY++;
+					}
 
-
-				// Collision Vertivale - catMoveX <> 0
-				if (catMoveX) {
-
-					currentTileXCheckMin = (catX + levelOffset) / TILE_SIZE;
-					hasCurrentTileCheckXMax = ((catX + levelOffset) % TILE_SIZE) > 0;
+					// Contrôle collision Chat / Décors
+					int currentTileXCheckMin = (catXOld + levelOffsetOld) / TILE_SIZE;
+					int hasCurrentTileCheckXMax = ((catXOld + levelOffsetOld) % TILE_SIZE) > 0;
 					if (currentTileXCheckMin > LEVEL_WIDTH) {
 						currentTileXCheckMin = LEVEL_WIDTH;
 					}
 
-					currentTileYCheckMin = catY / TILE_SIZE;
-					hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
+					int currentTileYCheckMin = catY / TILE_SIZE;
+					int hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
 
+					// Collision Verticale
 					for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
 						for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
 
 							int currentFloorTile = currentLevel->levelTiles[currentTileYCheckMin + my][currentTileXCheckMin + mx];
 							if (currentFloorTile > 6) {
-								catX = catXOld;
-								levelOffset = levelOffsetOld;
+								catY = catYOld;
 							}
 						}
 					}
-				}
 
-				// Vider le cache pour les dessins
-				SDL_RenderClear(renderer);
 
-				// Dessiner le niveau - Zone courante
-				int currentTileX = 0;
-				int levelDrawOffset = levelOffset % TILE_SIZE;
-				for (int xr = 0; xr < 17; xr++) {
-					for (int yr = 0; yr < LEVEL_HEIGHT; yr++) {
-						currentTileX = xr + levelTileOffset;
-						if (currentTileX > LEVEL_WIDTH) {
-							currentTileX = LEVEL_WIDTH;
+					// Collision Vertivale - catMoveX <> 0
+					if (catMoveX) {
+
+						currentTileXCheckMin = (catX + levelOffset) / TILE_SIZE;
+						hasCurrentTileCheckXMax = ((catX + levelOffset) % TILE_SIZE) > 0;
+						if (currentTileXCheckMin > LEVEL_WIDTH) {
+							currentTileXCheckMin = LEVEL_WIDTH;
 						}
 
-						SDL_Rect tilePosition = { (xr * TILE_SIZE) - levelDrawOffset, yr * TILE_SIZE, 16, 16 };
-						int currentFloorTile = currentLevel->levelTiles[yr][currentTileX];
+						currentTileYCheckMin = catY / TILE_SIZE;
+						hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
 
-						SDL_Rect levelTile = { currentFloorTile * TILE_SIZE, 0, 16, 16 };
-						SDL_RenderCopy(renderer, tLevel, &levelTile, &tilePosition);  // Dessin d'un sprite
+						for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
+							for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
 
+								int currentFloorTile = currentLevel->levelTiles[currentTileYCheckMin + my][currentTileXCheckMin + mx];
+								if (currentFloorTile > 6) {
+									catX = catXOld;
+									levelOffset = levelOffsetOld;
+								}
+							}
+						}
 					}
+
+					// Vider le cache pour les dessins
+					SDL_RenderClear(renderer);
+
+					// Dessiner le niveau - Zone courante
+					int currentTileX = 0;
+					int levelDrawOffset = levelOffset % TILE_SIZE;
+					for (int xr = 0; xr < 17; xr++) {
+						for (int yr = 0; yr < LEVEL_HEIGHT; yr++) {
+							currentTileX = xr + levelTileOffset;
+							if (currentTileX > LEVEL_WIDTH) {
+								currentTileX = LEVEL_WIDTH;
+							}
+
+							SDL_Rect tilePosition = { (xr * TILE_SIZE) - levelDrawOffset, yr * TILE_SIZE, 16, 16 };
+							int currentFloorTile = currentLevel->levelTiles[yr][currentTileX];
+
+							SDL_Rect levelTile = { currentFloorTile * TILE_SIZE, 0, 16, 16 };
+							SDL_RenderCopy(renderer, tLevel, &levelTile, &tilePosition);  // Dessin d'un sprite
+
+						}
+					}
+
+					// Dessiner le Chat
+					SDL_Rect catPosition = { catX, catY, 16, 16 };
+					int currentCatTile = 0;
+
+					SDL_Rect catTile = { currentCatTile * TILE_SIZE, 0, 16, 16 };
+					SDL_RenderCopy(renderer, tChar, &catTile, &catPosition);  // Dessin d'un sprite
+
+					SDL_RenderPresent(renderer); // Affichage
+
+
 				}
-
-				// Dessiner le Chat
-				SDL_Rect catPosition = { catX, catY, 16, 16 };
-				int currentCatTile = 0;
-
-				SDL_Rect catTile = { currentCatTile * TILE_SIZE, 0, 16, 16 };
-				SDL_RenderCopy(renderer, tChar, &catTile, &catPosition);  // Dessin d'un sprite
-
-				SDL_RenderPresent(renderer); // Affichage
-
-
-
 			}
 
 		}
