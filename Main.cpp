@@ -14,11 +14,16 @@ const int LEVEL_WIDTH = 208;
 const int LEVEL_HEIGHT = 15;
 const int LEVEL_MAX_OFFSET = (LEVEL_WIDTH * TILE_SIZE) - SCREEN_WIDTH;
 
+// Gameplay Const
+const int CAT_MAX_JUMP = TILE_SIZE * 4;
+
 // Character vars
 int catX = 80;
 int catY = 192;
 int catMoveX = 0; // -1 gauche, 0 immobile, 1 droite
 int catMoveY = 0; // 0 immobile, 1 saut en cours
+int catJumpStock = CAT_MAX_JUMP;
+int canJumpAgain = 1;
 int catXOld = 80;
 int catYOld = 192;
 
@@ -127,6 +132,7 @@ int main(int argc, char* args[])
 								break;
 							case SDLK_UP:
 								catMoveY = 1;
+								canJumpAgain = 0;
 								break;
 							case SDLK_ESCAPE:
 								quit = 1;
@@ -150,6 +156,7 @@ int main(int argc, char* args[])
 								break;
 							case SDLK_UP:
 								catMoveY = 0;
+								catJumpStock = 0;
 								break;
 							case SDLK_ESCAPE:
 								quit = 1;
@@ -189,7 +196,6 @@ int main(int argc, char* args[])
 
 					// Déplacement (horizontal)
 					if (catMoveX == 1) {
-						//catMove = 0;
 						if (catX < SCREEN_BASE_OFFSET) {
 							catX++;
 						}
@@ -215,8 +221,9 @@ int main(int argc, char* args[])
 
 					// Gestion de la gravité
 					catYOld = catY;
-					if (catMoveY) {
+					if (catMoveY && catJumpStock > 0) {
 						catY--;
+						catJumpStock--;
 						if (catY < 0) { catY = 0; }
 					}
 					else {
@@ -239,6 +246,20 @@ int main(int argc, char* args[])
 
 							int currentFloorTile = currentLevel->levelTiles[currentTileYCheckMin + my][currentTileXCheckMin + mx];
 							if (currentFloorTile > 6) {
+								// Si collision "saut" - arrêt du saut
+								if (catYOld > catY && catMoveY == 1) {
+									canJumpAgain = 1;
+									if (catMoveY == 1) {
+										catJumpStock = 0;
+									}
+								}
+
+								// On touche le sol - reset du bouton de saut
+								if (catYOld < catY && catMoveY == 0) {
+									canJumpAgain = 1;
+									catJumpStock = CAT_MAX_JUMP;
+								}
+
 								catY = catYOld;
 							}
 						}
