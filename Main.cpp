@@ -60,6 +60,21 @@ struct gameLevel {
 
 };
 
+// Remise à zéro des variables de jeu
+void resetGame() {
+	catX = 80;
+	catY = 192;
+	catMoveX = 0; // -1 gauche, 0 immobile, 1 droite
+	catMoveY = 0; // 0 immobile, 1 saut en cours
+	catJumpStock = CAT_MAX_JUMP;
+	canJumpAgain = 1;
+	catXOld = 80;
+	catYOld = 192;
+	levelOffset = 0;
+	levelOffsetOld = 0;
+	levelTileOffset = 0;
+}
+
 
 int main(int argc, char* args[])
 {
@@ -133,6 +148,10 @@ int main(int argc, char* args[])
 							case SDLK_UP:
 								catMoveY = 1;
 								canJumpAgain = 0;
+								break;
+
+							case SDLK_r:
+								resetGame();
 								break;
 							case SDLK_ESCAPE:
 								quit = 1;
@@ -228,6 +247,11 @@ int main(int argc, char* args[])
 					}
 					else {
 						catY++;
+					}
+
+					// Mort par chute
+					if (catY >= TILE_SIZE * 15) {
+						resetGame();
 					}
 
 					// Contrôle collision Chat / Décors
