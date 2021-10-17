@@ -126,10 +126,13 @@ int main(int argc, char* args[])
 	// Surfaces for tiles
 	SDL_Surface* sLevel = SDL_LoadBMP("./resources/SMeowLevel.bmp");
 	SDL_Surface* sChar = SDL_LoadBMP("./resources/SMeowChar.bmp");
+	SDL_Surface* sFoe = SDL_LoadBMP("./resources/SMeowFoe.bmp");
 
 	// Gestion de la transparence pour la surface
 	Uint32 transparentColor = SDL_MapRGB(sChar->format, 255, 255, 255);
 	int transCol = SDL_SetColorKey(sChar, SDL_TRUE, transparentColor);
+	Uint32 transparentColor2 = SDL_MapRGB(sFoe->format, 255, 255, 255);
+	int transCol2 = SDL_SetColorKey(sFoe, SDL_TRUE, transparentColor);
 
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -158,7 +161,9 @@ int main(int argc, char* args[])
 			// Textures loading
 			SDL_Texture* tLevel = SDL_CreateTextureFromSurface(renderer, sLevel);
 			SDL_Texture* tChar = SDL_CreateTextureFromSurface(renderer, sChar);
+			SDL_Texture* tFoe = SDL_CreateTextureFromSurface(renderer, sFoe);
 			SDL_SetTextureBlendMode(tChar, SDL_BLENDMODE_BLEND);
+			SDL_SetTextureBlendMode(tFoe, SDL_BLENDMODE_BLEND);
 
 			// Room loading
 			gameLevel* currentLevel = new gameLevel();
@@ -378,6 +383,22 @@ int main(int argc, char* args[])
 					SDL_Rect catTile = { currentCatTile * TILE_SIZE, 0, 16, 16 };
 					SDL_RenderCopy(renderer, tChar, &catTile, &catPosition);  // Dessin d'un sprite
 
+					// Dessiner les ennemis
+					// Parcours du tableau
+					for (int eidx = 0; eidx < 16; eidx++) {
+						
+						// On prend en compte les ennemis actifs (ennemyType > 0)
+						if (currentLevel->levelEnnemy[eidx].ennemyType > 0) {
+
+							// Dessin de l'ennemi
+							SDL_Rect foePosition = { catX, catY, 16, 16 };
+							int currentFoeTile = 0;
+
+							SDL_Rect foeTile = { currentFoeTile * TILE_SIZE, 0, 16, 16 };
+							SDL_RenderCopy(renderer, tChar, &foeTile, &foePosition);  // Dessin d'un sprite
+						}
+					}
+
 					SDL_RenderPresent(renderer); // Affichage
 
 
@@ -393,6 +414,8 @@ int main(int argc, char* args[])
 ;
 	// Libération de la mémoire pour les Sprites
 	SDL_FreeSurface(sLevel);
+	SDL_FreeSurface(sChar);
+	SDL_FreeSurface(sFoe);
 
 	//Destroy window
 	SDL_DestroyWindow(window);
