@@ -29,5 +29,8 @@
     <Image Include="resources\SMeowChar.png">
       <Filter>Fichiers de ressources</Filter>
     </Image>
+    <Image Include="resources\SMeowFoe.bmp">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

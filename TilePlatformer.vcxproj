@@ -147,6 +147,7 @@
   <ItemGroup>
     <Image Include="..\..\..\Downloads\testGrid.bmp" />
     <Image Include="resources\SMeowChar.png" />
+    <Image Include="resources\SMeowFoe.bmp" />
     <Image Include="resources\SMeowLevel.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
