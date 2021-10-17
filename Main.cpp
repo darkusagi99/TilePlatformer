@@ -34,6 +34,20 @@ int levelTileOffset = 0;
 // FPS capping
 int a, b, delta;
 
+// Définition des ennemis
+struct ennemy {
+	int ennemyType = 1;
+	int posX;
+	int posY;
+	int dir = 0;
+
+	// Constructor
+	ennemy(int x, int y) {
+		posX = x;
+		posY = y;
+	}
+};
+
 // Définition du niveau
 struct gameLevel {
 	int levelTiles[LEVEL_HEIGHT][LEVEL_WIDTH] = {
@@ -79,19 +93,7 @@ struct gameLevel {
 
 };
 
-// Définition du niveau
-struct ennemy {
-	int ennemyType = 1;
-	int posX;
-	int posY;
-	int dir = 0;
 
-	// Constructor
-	ennemy(int x, int y) {
-		posX = x;
-		posY = y;
-	}
-};
 
 // Remise à zéro des variables de jeu
 void resetGame() {
