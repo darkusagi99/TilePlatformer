@@ -31,12 +31,13 @@ int levelOffset = 0;
 int levelOffsetOld = 0;
 int levelTileOffset = 0;
 
+
 // FPS capping
 int a, b, delta;
 
 // Définition des ennemis
 struct ennemy {
-	int ennemyType = 1;
+	int ennemyType = -1;
 	int posX;
 	int posY;
 	int dir = 0;
@@ -93,7 +94,7 @@ struct gameLevel {
 
 };
 
-
+gameLevel* currentLevel;
 
 // Remise à zéro des variables de jeu
 void resetGame() {
@@ -108,6 +109,8 @@ void resetGame() {
 	levelOffset = 0;
 	levelOffsetOld = 0;
 	levelTileOffset = 0;
+
+	currentLevel = new gameLevel();
 }
 
 
@@ -166,7 +169,7 @@ int main(int argc, char* args[])
 			SDL_SetTextureBlendMode(tFoe, SDL_BLENDMODE_BLEND);
 
 			// Room loading
-			gameLevel* currentLevel = new gameLevel();
+			currentLevel = new gameLevel();
 
 			/* Loop until an SDL_QUIT event is found */
 			while (!quit) {
@@ -278,6 +281,39 @@ int main(int argc, char* args[])
 						}
 					}
 
+
+					// Activation des ennemis
+					// Parcours du tableau
+					for (int eidx = 0; eidx < 16; eidx++) {
+
+						// On prend en compte les ennemis actifs (ennemyType > 0)
+						if (currentLevel->levelEnnemy[eidx].ennemyType < 0) {
+
+							// Activation juste avant d'apparaître à l'écran
+							if (currentLevel->levelEnnemy[eidx].posX < (levelOffset + SCREEN_WIDTH + TILE_SIZE)) {
+								currentLevel->levelEnnemy[eidx].ennemyType = 1;
+							}
+						}
+
+						// Desactivation des ennemis qui sont trop en arrière
+						if (currentLevel->levelEnnemy[eidx].ennemyType > 0) {
+
+							if (currentLevel->levelEnnemy[eidx].posX < (levelOffset - SCREEN_WIDTH)) {
+								currentLevel->levelEnnemy[eidx].ennemyType = 0;
+							}
+						}
+
+						// Déplacement des ennemis
+						// On prend en compte les ennemis actifs (ennemyType > 0)
+						if (currentLevel->levelEnnemy[eidx].ennemyType > 0) {
+
+							// déplacement vers la gauche
+							currentLevel->levelEnnemy[eidx].posX -= 1;
+						}
+
+					}
+
+
 					// Gestion de la gravité
 					catYOld = catY;
 					if (catMoveY && catJumpStock > 0) {
@@ -290,7 +326,7 @@ int main(int argc, char* args[])
 					}
 
 					// Mort par chute
-					if (catY >= TILE_SIZE * 15) {
+					if (catY >= TILE_SIZE * 14) {
 						resetGame();
 					}
 
