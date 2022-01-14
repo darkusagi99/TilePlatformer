@@ -380,15 +380,6 @@ int main(int argc, char* args[])
 					}
 
 					// Contrôle collision Chat / Décors
-					int currentTileXCheckMin = (catXOld + levelOffsetOld) / TILE_SIZE;
-					int hasCurrentTileCheckXMax = ((catXOld + levelOffsetOld) % TILE_SIZE) > 0;
-					if (currentTileXCheckMin > LEVEL_WIDTH) {
-						currentTileXCheckMin = LEVEL_WIDTH;
-					}
-
-					int currentTileYCheckMin = catY / TILE_SIZE;
-					int hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
-
 					// Collision Verticale
 					if (levelCollision(catXOld + levelOffsetOld, catY)) {
 						// Si collision "saut" - arrêt du saut
@@ -409,11 +400,10 @@ int main(int argc, char* args[])
 
 					}
 
-
 					// Collision Vertivale - catMoveX <> 0
 					if (catMoveX) {
 
-						if (levelCollision(catX + levelOffsetOld, catY)) {
+						if (levelCollision(catX + levelOffset, catY)) {
 							catX = catXOld;
 							levelOffset = levelOffsetOld;
 						}
