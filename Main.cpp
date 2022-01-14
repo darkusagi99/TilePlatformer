@@ -325,32 +325,39 @@ int main(int argc, char* args[])
 							}
 						}
 
-						// Desactivation des ennemis qui sont trop en arrière
+						// Actions sur les ennemis actifs
 						if (currentLevel->levelEnnemy[eidx].ennemyType > 0) {
 
+							// Desactivation des ennemis qui sont trop en arrière
 							if (currentLevel->levelEnnemy[eidx].posX < (levelOffset - SCREEN_WIDTH)) {
 								currentLevel->levelEnnemy[eidx].ennemyType = 0;
 							}
-						}
 
 
-						// Collision verticale
-						if (!(levelCollision(currentLevel->levelEnnemy[eidx].posX + currentLevel->levelEnnemy[eidx].dir, currentLevel->levelEnnemy[eidx].posY + 1))) {
-							currentLevel->levelEnnemy[eidx].posY++;
-						}
+							// Collision verticale
+							if (!(levelCollision(currentLevel->levelEnnemy[eidx].posX + currentLevel->levelEnnemy[eidx].dir, currentLevel->levelEnnemy[eidx].posY + 1))) {
+								currentLevel->levelEnnemy[eidx].posY++;
+							}
 
-						// Collision horisontale
-						if (levelCollision(currentLevel->levelEnnemy[eidx].posX + currentLevel->levelEnnemy[eidx].dir, currentLevel->levelEnnemy[eidx].posY)) {
-							currentLevel->levelEnnemy[eidx].dir = -currentLevel->levelEnnemy[eidx].dir;
-						}
+							// Collision horisontale
+							if (levelCollision(currentLevel->levelEnnemy[eidx].posX + currentLevel->levelEnnemy[eidx].dir, currentLevel->levelEnnemy[eidx].posY)) {
+								currentLevel->levelEnnemy[eidx].dir = -currentLevel->levelEnnemy[eidx].dir;
+							}
 
 
-						// Déplacement des ennemis
-						// On prend en compte les ennemis actifs (ennemyType > 0)
-						if (currentLevel->levelEnnemy[eidx].ennemyType > 0) {
+							// Déplacement des ennemis
+							// On prend en compte les ennemis actifs (ennemyType > 0)
+							if (currentLevel->levelEnnemy[eidx].ennemyType > 0) {
 
-							// déplacement de l'ennemi
-							currentLevel->levelEnnemy[eidx].posX += currentLevel->levelEnnemy[eidx].dir;
+								// déplacement de l'ennemi
+								currentLevel->levelEnnemy[eidx].posX += currentLevel->levelEnnemy[eidx].dir;
+							}
+
+							// Mort par chute
+							if (currentLevel->levelEnnemy[eidx].posY >= TILE_SIZE * 14) {
+								currentLevel->levelEnnemy[eidx].ennemyType = 0;
+							}
+
 						}
 
 					}
