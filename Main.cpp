@@ -483,7 +483,10 @@ int main(int argc, char* args[])
 
 							// Dessin de l'ennemi
 							SDL_Rect foePosition = { currentLevel->levelEnnemy[eidx].posX - levelOffset, currentLevel->levelEnnemy[eidx].posY, 16, 16 };
-							int currentFoeTile = 0;
+							int currentFoeTile = currentLevel->levelEnnemy[eidx].posX % 2;
+							if (currentLevel->levelEnnemy[eidx].dir > 0) {
+								currentFoeTile += 2;
+							}
 
 							SDL_Rect foeTile = { currentFoeTile * TILE_SIZE, 0, 16, 16 };
 							SDL_RenderCopy(renderer, tFoe, &foeTile, &foePosition);  // Dessin d'un sprite
