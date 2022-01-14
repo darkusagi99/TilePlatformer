@@ -40,7 +40,7 @@ struct ennemy {
 	int ennemyType = -1;
 	int posX;
 	int posY;
-	int dir = 0;
+	int dir = -1;
 
 	// Constructor
 	ennemy(int x, int y) {
@@ -111,6 +111,36 @@ void resetGame() {
 	levelTileOffset = 0;
 
 	currentLevel = new gameLevel();
+}
+
+// Méthode de gestion des collisions
+bool levelCollision(int posx, int posy) {
+	
+	// Test et gestion des collisions avec le niveau -- TODO
+						// Collision verticale -- TODO
+	int currentTileXCheckMin = posx / TILE_SIZE;
+	int hasCurrentTileCheckXMax = (posx % TILE_SIZE) > 0;
+
+	if (currentTileXCheckMin > LEVEL_WIDTH) {
+		currentTileXCheckMin = LEVEL_WIDTH;
+	}
+
+	int currentTileYCheckMin = posy / TILE_SIZE;
+	int hasCurrentTileCheckYMax = (posy % TILE_SIZE) > 0;
+	int collide = 0;
+
+	for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
+		for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
+
+			int currentFloorTile = currentLevel->levelTiles[currentTileYCheckMin + my][currentTileXCheckMin + mx];
+			if (currentFloorTile > 6) {
+				collide = 1;
+			}
+		}
+	}
+
+	return collide;
+
 }
 
 
@@ -303,12 +333,24 @@ int main(int argc, char* args[])
 							}
 						}
 
+
+						// Collision verticale
+						if (!(levelCollision(currentLevel->levelEnnemy[eidx].posX + currentLevel->levelEnnemy[eidx].dir, currentLevel->levelEnnemy[eidx].posY + 1))) {
+							currentLevel->levelEnnemy[eidx].posY++;
+						}
+
+						// Collision horisontale
+						if (levelCollision(currentLevel->levelEnnemy[eidx].posX + currentLevel->levelEnnemy[eidx].dir, currentLevel->levelEnnemy[eidx].posY)) {
+							currentLevel->levelEnnemy[eidx].dir = -currentLevel->levelEnnemy[eidx].dir;
+						}
+
+
 						// Déplacement des ennemis
 						// On prend en compte les ennemis actifs (ennemyType > 0)
 						if (currentLevel->levelEnnemy[eidx].ennemyType > 0) {
 
-							// déplacement vers la gauche
-							currentLevel->levelEnnemy[eidx].posX -= 1;
+							// déplacement de l'ennemi
+							currentLevel->levelEnnemy[eidx].posX += currentLevel->levelEnnemy[eidx].dir;
 						}
 
 					}
@@ -341,54 +383,36 @@ int main(int argc, char* args[])
 					int hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
 
 					// Collision Verticale
-					for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
-						for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
-
-							int currentFloorTile = currentLevel->levelTiles[currentTileYCheckMin + my][currentTileXCheckMin + mx];
-							if (currentFloorTile > 6) {
-								// Si collision "saut" - arrêt du saut
-								if (catYOld > catY && catMoveY == 1) {
-									canJumpAgain = 1;
-									if (catMoveY == 1) {
-										catJumpStock = 0;
-									}
-								}
-
-								// On touche le sol - reset du bouton de saut
-								if (catYOld < catY && catMoveY == 0) {
-									canJumpAgain = 1;
-									catJumpStock = CAT_MAX_JUMP;
-								}
-
-								catY = catYOld;
+					if (levelCollision(catXOld + levelOffsetOld, catY)) {
+						// Si collision "saut" - arrêt du saut
+						if (catYOld > catY && catMoveY == 1) {
+							canJumpAgain = 1;
+							if (catMoveY == 1) {
+								catJumpStock = 0;
 							}
 						}
+
+						// On touche le sol - reset du bouton de saut
+						if (catYOld < catY && catMoveY == 0) {
+							canJumpAgain = 1;
+							catJumpStock = CAT_MAX_JUMP;
+						}
+
+						catY = catYOld;
+
 					}
 
 
 					// Collision Vertivale - catMoveX <> 0
 					if (catMoveX) {
 
-						currentTileXCheckMin = (catX + levelOffset) / TILE_SIZE;
-						hasCurrentTileCheckXMax = ((catX + levelOffset) % TILE_SIZE) > 0;
-						if (currentTileXCheckMin > LEVEL_WIDTH) {
-							currentTileXCheckMin = LEVEL_WIDTH;
-						}
-
-						currentTileYCheckMin = catY / TILE_SIZE;
-						hasCurrentTileCheckYMax = (catY % TILE_SIZE) > 0;
-
-						for (int mx = 0; mx <= hasCurrentTileCheckXMax; mx++) {
-							for (int my = 0; my <= hasCurrentTileCheckYMax; my++) {
-
-								int currentFloorTile = currentLevel->levelTiles[currentTileYCheckMin + my][currentTileXCheckMin + mx];
-								if (currentFloorTile > 6) {
-									catX = catXOld;
-									levelOffset = levelOffsetOld;
-								}
-							}
+						if (levelCollision(catX + levelOffsetOld, catY)) {
+							catX = catXOld;
+							levelOffset = levelOffsetOld;
 						}
 					}
+
+					// Contrôle des collisions chat / ennemis -- TODO
 
 					// Vider le cache pour les dessins
 					SDL_RenderClear(renderer);
