@@ -143,6 +143,25 @@ bool levelCollision(int posx, int posy) {
 
 }
 
+bool ennemyCollision(int p1x, int p1y, int p2x, int p2y) {
+	int collide = 0;
+
+	// Collision sur X
+	if ((p2x >= p1x && p2x <= p1x + TILE_SIZE) || 
+		(p2x + TILE_SIZE >= p1x && p2x + TILE_SIZE <= p1x + TILE_SIZE)) {
+	
+		// Collision sur Y
+		if ((p2y >= p1y && p2y <= p1y + TILE_SIZE) ||
+			(p2y + TILE_SIZE >= p1y && p2y + TILE_SIZE <= p1y + TILE_SIZE)) {
+
+			collide = 1;
+		}
+	}
+
+	return collide;
+
+}
+
 
 int main(int argc, char* args[])
 {
@@ -358,8 +377,23 @@ int main(int argc, char* args[])
 								currentLevel->levelEnnemy[eidx].ennemyType = 0;
 							}
 
-						}
+							// Contrôle collision avec le chat
+							if (ennemyCollision(catX + levelOffset,
+												catY,
+												currentLevel->levelEnnemy[eidx].posX,
+												currentLevel->levelEnnemy[eidx].posY
+							)) {
 
+								if ((catY + (3 * TILE_SIZE / 4)) < currentLevel->levelEnnemy[eidx].posY) {
+									// ennemi detruit
+									currentLevel->levelEnnemy[eidx].ennemyType = 0;
+								}
+								else {
+									// Reset du niveau
+									resetGame();
+								}
+							}
+						}
 					}
 
 
