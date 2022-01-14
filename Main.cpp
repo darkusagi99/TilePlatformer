@@ -22,6 +22,7 @@ int catX = 80;
 int catY = 192;
 int catMoveX = 0; // -1 gauche, 0 immobile, 1 droite
 int catMoveY = 0; // 0 immobile, 1 saut en cours
+int catDir = 1;
 int catJumpStock = CAT_MAX_JUMP;
 int canJumpAgain = 1;
 int catXOld = 80;
@@ -195,7 +196,7 @@ int main(int argc, char* args[])
 	{
 		//Create window
 		window = SDL_CreateWindow("Tile Platformer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-		//SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 
 		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
@@ -233,9 +234,11 @@ int main(int argc, char* args[])
 							switch (event.key.keysym.sym) {
 							case SDLK_LEFT:
 								catMoveX = -1;
+								catDir = -1;
 								break;
 							case SDLK_RIGHT:
 								catMoveX = 1;
+								catDir = 1;
 								break;
 							case SDLK_UP:
 								catMoveY = 1;
@@ -469,7 +472,10 @@ int main(int argc, char* args[])
 
 					// Dessiner le Chat
 					SDL_Rect catPosition = { catX, catY, 16, 16 };
-					int currentCatTile = 0;
+					int currentCatTile = (catX + levelOffset) % 4;
+					if (catDir < 0) {
+						currentCatTile += 4;
+					}
 
 					SDL_Rect catTile = { currentCatTile * TILE_SIZE, 0, 16, 16 };
 					SDL_RenderCopy(renderer, tChar, &catTile, &catPosition);  // Dessin d'un sprite
