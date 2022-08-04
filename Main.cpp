@@ -32,6 +32,14 @@ int levelOffset = 0;
 int levelOffsetOld = 0;
 int levelTileOffset = 0;
 
+// Speed table
+int speedTable[9] = { -4,-2,-1,-1,0,1,1,2,4 };
+int hSpeed = 4;
+int vSpeed = 4;
+int friction = 0;
+int surface = 2;
+int jumpPower = 0;
+
 
 // FPS capping
 int a, b, delta;
@@ -292,6 +300,37 @@ int main(int argc, char* args[])
 
 				}
 
+				// Move inetia - X axis
+				switch (catMoveX) {
+				
+					case -1 :
+						if (hSpeed > 0) {
+							hSpeed--;
+						}
+						break;
+					case 1 :
+						if (hSpeed < 8) {
+							hSpeed++;
+						}
+						break;
+					default : // should be always 0 -> Slow down speed
+						friction = (friction + 1) % surface;
+						if (friction == 0) {
+							if (hSpeed < 4) { hSpeed++; }
+							if (hSpeed > 4) { hSpeed--; }
+						}
+				}
+
+				// Move inertia - Y axis
+				if (catMoveY == 1) {
+					if (jumpPower < 6) {
+						jumpPower++;
+						vSpeed = 0;
+					}
+				} else { // CatMoveY = 0;
+					jumpPower = 6;
+				}
+
 
 				// Capping to 60 FPS
 				a = SDL_GetTicks();
@@ -311,16 +350,16 @@ int main(int argc, char* args[])
 					// Déplacement (horizontal)
 					if (catMoveX == 1) {
 						if (catX < SCREEN_BASE_OFFSET) {
-							catX++;
+							catX+=speedTable[hSpeed];
 						}
 						else {
 							if (levelOffset < LEVEL_MAX_OFFSET) {
-								levelOffset++;
+								levelOffset += speedTable[hSpeed];
 								levelTileOffset = levelOffset / TILE_SIZE;
 							}
 							else {
 								if (catX < SCREEN_WIDTH - TILE_SIZE) {
-									catX++;
+									catX += speedTable[hSpeed];
 								}
 							}
 						}
@@ -328,7 +367,7 @@ int main(int argc, char* args[])
 					else {
 						if (catMoveX == -1) {
 							if (catX > 1) {
-								catX--;
+								catX += speedTable[hSpeed];
 							}
 						}
 					}
@@ -402,8 +441,8 @@ int main(int argc, char* args[])
 
 					// Gestion de la gravité
 					catYOld = catY;
-					if (catMoveY && catJumpStock > 0) {
-						catY--;
+					if (catMoveY) {
+						catY += speedTable[vSpeed];
 						catJumpStock--;
 						if (catY < 0) { catY = 0; }
 					}
@@ -431,6 +470,7 @@ int main(int argc, char* args[])
 						if (catYOld < catY && catMoveY == 0) {
 							canJumpAgain = 1;
 							catJumpStock = CAT_MAX_JUMP;
+							jumpPower = 0;
 						}
 
 						catY = catYOld;
