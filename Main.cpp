@@ -23,7 +23,6 @@ int catY = 192;
 int catMoveX = 0; // -1 gauche, 0 immobile, 1 droite
 int catMoveY = 0; // 0 immobile, 1 saut en cours
 int catDir = 1;
-int canJumpAgain = 1;
 int catXOld = 80;
 int catYOld = 192;
 
@@ -110,7 +109,6 @@ void resetGame() {
 	catY = 192;
 	catMoveX = 0; // -1 gauche, 0 immobile, 1 droite
 	catMoveY = 0; // 0 immobile, 1 saut en cours
-	canJumpAgain = 1;
 	catXOld = 80;
 	catYOld = 192;
 	levelOffset = 0;
@@ -248,7 +246,6 @@ int main(int argc, char* args[])
 								break;
 							case SDLK_UP:
 								catMoveY = 1;
-								canJumpAgain = 0;
 								break;
 
 							case SDLK_r:
@@ -303,7 +300,7 @@ int main(int argc, char* args[])
 				delta = a - b;
 
 				// Mesure si on peut passer à la frame suivante
-				if (delta > 1000 / 120.0) {
+				if (delta > 1000 / 50.0) {
 
 					// FPS Management
 					b = a;
@@ -457,10 +454,11 @@ int main(int argc, char* args[])
 					// Contrôle collision Chat / Décors
 					// Collision Verticale
 					if (levelCollision(catXOld + levelOffsetOld, catY)) {
-						
-						if (catY > catYOld) {
+
+						if (catY > catYOld && catMoveY == 0) {
 							jumpPower = 0;
 						}
+
 						catY = catYOld;
 
 					}
