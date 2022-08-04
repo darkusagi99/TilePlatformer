@@ -15,7 +15,7 @@ const int LEVEL_HEIGHT = 15;
 const int LEVEL_MAX_OFFSET = (LEVEL_WIDTH * TILE_SIZE) - SCREEN_WIDTH;
 
 // Gameplay Const
-const int CAT_MAX_JUMP = TILE_SIZE * 4;
+const int MAX_JUMP_POWER = 16;
 
 // Character vars
 int catX = 80;
@@ -23,7 +23,6 @@ int catY = 192;
 int catMoveX = 0; // -1 gauche, 0 immobile, 1 droite
 int catMoveY = 0; // 0 immobile, 1 saut en cours
 int catDir = 1;
-int catJumpStock = CAT_MAX_JUMP;
 int canJumpAgain = 1;
 int catXOld = 80;
 int catYOld = 192;
@@ -111,7 +110,6 @@ void resetGame() {
 	catY = 192;
 	catMoveX = 0; // -1 gauche, 0 immobile, 1 droite
 	catMoveY = 0; // 0 immobile, 1 saut en cours
-	catJumpStock = CAT_MAX_JUMP;
 	canJumpAgain = 1;
 	catXOld = 80;
 	catYOld = 192;
@@ -278,7 +276,6 @@ int main(int argc, char* args[])
 								break;
 							case SDLK_UP:
 								catMoveY = 0;
-								catJumpStock = 0;
 								break;
 							case SDLK_ESCAPE:
 								quit = 1;
@@ -300,37 +297,6 @@ int main(int argc, char* args[])
 
 				}
 
-				// Move inetia - X axis
-				switch (catMoveX) {
-				
-					case -1 :
-						if (hSpeed > 0) {
-							hSpeed--;
-						}
-						break;
-					case 1 :
-						if (hSpeed < 8) {
-							hSpeed++;
-						}
-						break;
-					default : // should be always 0 -> Slow down speed
-						friction = (friction + 1) % surface;
-						if (friction == 0) {
-							if (hSpeed < 4) { hSpeed++; }
-							if (hSpeed > 4) { hSpeed--; }
-						}
-				}
-
-				// Move inertia - Y axis
-				if (catMoveY == 1) {
-					if (jumpPower < 6) {
-						jumpPower++;
-						vSpeed = 0;
-					}
-				} else { // CatMoveY = 0;
-					jumpPower = 6;
-				}
-
 
 				// Capping to 60 FPS
 				a = SDL_GetTicks();
@@ -341,6 +307,45 @@ int main(int argc, char* args[])
 
 					// FPS Management
 					b = a;
+
+					// Move inetia - X axis
+					switch (catMoveX) {
+
+					case -1:
+						if (hSpeed > 0) {
+							hSpeed--;
+						}
+						break;
+					case 1:
+						if (hSpeed < 8) {
+							hSpeed++;
+						}
+						break;
+					default: // should be always 0 -> Slow down speed
+						friction = (friction + 1) % surface;
+						if (friction == 0) {
+							if (hSpeed < 4) { hSpeed++; }
+							if (hSpeed > 4) { hSpeed--; }
+						}
+					}
+
+					// Move inertia - Y axis
+
+					// Fall speed
+					if (vSpeed < 8) {
+						vSpeed++;
+					}
+
+					if (catMoveY == 1) {
+						if (jumpPower < MAX_JUMP_POWER) {
+							jumpPower++;
+						vSpeed = 0;
+						}
+					}
+					else { // CatMoveY = 0;
+						jumpPower = MAX_JUMP_POWER;
+					}
+
 
 					// Mise à jour de la position du chat (et animation)
 					// Sauvegarde de la position actuelle
@@ -441,14 +446,8 @@ int main(int argc, char* args[])
 
 					// Gestion de la gravité
 					catYOld = catY;
-					if (catMoveY) {
-						catY += speedTable[vSpeed];
-						catJumpStock--;
-						if (catY < 0) { catY = 0; }
-					}
-					else {
-						catY++;
-					}
+					catY += speedTable[vSpeed];
+					if (catY < 0) { catY = 0; }
 
 					// Mort par chute
 					if (catY >= TILE_SIZE * 14) {
@@ -458,21 +457,10 @@ int main(int argc, char* args[])
 					// Contrôle collision Chat / Décors
 					// Collision Verticale
 					if (levelCollision(catXOld + levelOffsetOld, catY)) {
-						// Si collision "saut" - arrêt du saut
-						if (catYOld > catY && catMoveY == 1) {
-							canJumpAgain = 1;
-							if (catMoveY == 1) {
-								catJumpStock = 0;
-							}
-						}
-
-						// On touche le sol - reset du bouton de saut
-						if (catYOld < catY && catMoveY == 0) {
-							canJumpAgain = 1;
-							catJumpStock = CAT_MAX_JUMP;
+						
+						if (catY > catYOld) {
 							jumpPower = 0;
 						}
-
 						catY = catYOld;
 
 					}
