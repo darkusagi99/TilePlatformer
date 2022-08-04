@@ -29,6 +29,7 @@ int catYOld = 192;
 int levelOffset = 0;
 int levelOffsetOld = 0;
 int levelTileOffset = 0;
+int levelTileOffsetOld = 0;
 
 // Speed table
 int speedTable[9] = { -4,-2,-1,-1,0,1,1,2,4 };
@@ -348,6 +349,7 @@ int main(int argc, char* args[])
 					// Sauvegarde de la position actuelle
 					catXOld = catX;
 					levelOffsetOld = levelOffset;
+					levelTileOffsetOld = levelTileOffset;
 
 					// Déplacement (horizontal)
 					if (catMoveX == 1) {
@@ -440,6 +442,16 @@ int main(int argc, char* args[])
 						}
 					}
 
+					// Collision Vertivale - catMoveX <> 0
+					if (catMoveX) {
+
+						if (levelCollision(catX + levelOffset, catY)) {
+							catX = catXOld;
+							levelOffset = levelOffsetOld;
+							levelTileOffset = levelTileOffsetOld;
+							hSpeed = 4;
+						}
+					}
 
 					// Gestion de la gravité
 					catYOld = catY;
@@ -453,7 +465,7 @@ int main(int argc, char* args[])
 
 					// Contrôle collision Chat / Décors
 					// Collision Verticale
-					if (levelCollision(catXOld + levelOffsetOld, catY)) {
+					if (levelCollision(catX + levelOffset, catY)) {
 
 						if (catY > catYOld && catMoveY == 0) {
 							jumpPower = 0;
@@ -461,15 +473,6 @@ int main(int argc, char* args[])
 
 						catY = catYOld;
 
-					}
-
-					// Collision Vertivale - catMoveX <> 0
-					if (catMoveX) {
-
-						if (levelCollision(catX + levelOffset, catY)) {
-							catX = catXOld;
-							levelOffset = levelOffsetOld;
-						}
 					}
 
 					// Contrôle des collisions chat / ennemis -- TODO
